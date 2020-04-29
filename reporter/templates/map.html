@@ -2,134 +2,155 @@
 {% load leaflet_tags %}
 <html lang="en">
 <head>
-    {% leaflet_js %}
-    {% leaflet_css %}
-    {% load static %}
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="{%static "css/style.css"%}">
-    <meta charset="UTF-8">
-    <title>Anti COVID-19 people gatherings reporter</title>
+  {% leaflet_js %}
+  {% leaflet_css %}
+  {% load static %}
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="{%static "css/style.css"%}">
+  <meta charset="UTF-8">
+  <title>Anti COVID-19 people gatherings reporter</title>
 </head>
 <body>
-    <script type="text/javascript">
-      var dataurl = '{% url "data" %}';
-      var map;
+<script type="text/javascript">
+  var dataurl = '{% url "data" %}';
+  var map;
 
-      window.addEventListener("map:init", function (event) {
-        map = event.detail.map;
+  //TODO find a way to remove reset view
+  window.addEventListener("map:init", function (event) {
+    map = event.detail.map;
 
-        fetch(dataurl)
-          .then(function(resp) {
-            return resp.json();
-          })
-          .then(function(data) {
-            L.geoJson(data, {
-              onEachFeature: function onEachFeature(feature, layer) {
-                  layer.bindPopup('People: ' + feature.properties.number.toString() + '<br> Action: ' + feature.properties.action.toString())
-            }}).addTo(map);
-          });
-        //TODO change diz to some not-revealing location, e.g. Krakow main square or such
-        map.setView([49.632483, 20.698026], 13);
-        map.on('click', function(e) {
-            var popLocation= e.latlng;
-            window.value = popLocation;
-            popup = L.popup()
-            .setLatLng(popLocation)
-            .setContent('<p>Click on "Report" button to report activity in this place</p>')
-            .openOn(map);
-          });
+    fetch(dataurl)
+      .then(function(resp) {
+        return resp.json();
+      })
+      .then(function(data) {
+        L.geoJson(data, {
+          onEachFeature: function onEachFeature(feature, layer) {
+            layer.bindPopup('People: ' + feature.properties.number.toString() + '<br> Action: ' + feature.properties.action.toString())
+          }}).addTo(map);
       });
+    //Init view, Krakow Main Square, changed if user grants permission for IP location
+    map.setView([50.062412, 19.937216], 16);
+    map.on('click', function(e) {
+      var popLocation= e.latlng;
+      window.value = popLocation;
+      popup = L.popup()
+        .setLatLng(popLocation)
+        .setContent('<p>Click on "Report" button to report activity in this place</p>')
+        .openOn(map);
+    });
+    map.viewreset.disable();
+  });
 
-    </script>
-    <div id="map">
-        {% leaflet_map "main" %}
+</script>
+<div id="map">
+  {% leaflet_map "main" %}
+</div>
+
+<div id="reporting">
+  <button type="button" id="report-button">Report</button>
+</div>
+
+<div id="reportModal" class="modal" role="document">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h2>Report activity</h2>
     </div>
-
-    <div id="reporting">
-        <button type="button" id="report-button">Report</button>
+    <div class="modal-body">
+      <p>Click how many people you spotted and what they are doing:</p>
+      <button type="button" class="btn btn-primary ppl-number" value="1">1</button>
+      <button type="button" class="btn btn-primary ppl-number" value="2">2</button>
+      <button type="button" class="btn btn-primary ppl-number" value="5">5</button>
+      <button type="button" class="btn btn-primary ppl-number" value="10">10</button>
+      <br><br>
+      <!-- ----------------->
+      <button type="button" class="btn btn-primary ppl-activity" value="waiting">Waiting</button>
+      <button type="button" class="btn btn-primary ppl-activity" value="passing by">Passing by</button>
+      <button type="button" class="btn btn-primary ppl-activity" value="doing some business">Doing some business</button>
     </div>
-
-    <div id="reportModal" class="modal" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="close">&times;</span>
-                <h2>Report activity</h2>
-            </div>
-            <div class="modal-body">
-                <p>Click how many people you spotted and what they are doing:</p>
-                <button type="button" class="btn btn-primary ppl-number" value="1">1</button>
-                <button type="button" class="btn btn-primary ppl-number" value="2">2</button>
-                <button type="button" class="btn btn-primary ppl-number" value="5">5</button>
-                <button type="button" class="btn btn-primary ppl-number" value="10">10</button>
-                <br><br>
-                <!-- ----------------->
-                <button type="button" class="btn btn-primary ppl-activity" value="waiting">Waiting</button>
-                <button type="button" class="btn btn-primary ppl-activity" value="passing by">Passing by</button>
-                <button type="button" class="btn btn-primary ppl-activity" value="doing some business">Doing some business</button>
-            </div>
-            <div class="modal-footer">
-                <input type="submit" class="btn btn-primary" id="btn-save" value="Submit">
-            </div>
-        </div>
+    <div class="modal-footer">
+      <input type="submit" class="btn btn-primary" id="btn-save" value="Submit">
     </div>
+  </div>
+</div>
 
-    <!-- Modal popping up    -->
-    <script type="text/javascript">
-      var button = document.getElementById("report-button");
-      var modal = document.getElementById("reportModal");
-      var span = document.getElementsByClassName("close")[0];
+<!-- Modal popping up    -->
+<script type="text/javascript">
+  var button = document.getElementById("report-button");
+  var modal = document.getElementById("reportModal");
+  var span = document.getElementsByClassName("close")[0];
 
-      button.onclick = function () {
-        modal.style.display = "block";
-      };
+  button.onclick = function () {
+    modal.style.display = "block";
+  };
 
-      span.onclick = function () {
-        modal.style.display = "none";
-      }
+  span.onclick = function () {
+    modal.style.display = "none";
+  }
 
-      window.onclick = function (event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
-        }
-      }
-    </script>
+  window.onclick = function (event) {
+    if (event.target == modal) {
+      modal.style.display = "none";
+    }
+  }
+</script>
 
-    <!-- Modal buttons behaviour   -->
-    <script>
-        var number_of_people = null;
-        $('.ppl-number').click((e) => {
-          number_of_people = e.target.value;
-        })
+<!-- Modal buttons behaviour   -->
+<script>
+  var number_of_people = null;
+  $('.ppl-number').click((e) => {
+    number_of_people = e.target.value;
+  });
 
-        var activity_of_people = null;
-        $('.ppl-activity').click((e) => {
-          activity_of_people = e.target.value;
-        })
+  var activity_of_people = null;
+  $('.ppl-activity').click((e) => {
+    activity_of_people = e.target.value;
+  });
 
-        var save_button = document.getElementById("btn-save");
-        var modal = document.getElementById("reportModal");
+  var save_button = document.getElementById("btn-save");
+  var modal = document.getElementById("reportModal");
 
-        save_button.onclick = function () {
-            var args = {
-                'number': number_of_people,
-                'action': activity_of_people,
-                'lat': window.value['lat'],
-                'lng': window.value['lng']
-            };
-            activity_of_people = null;
-            number_of_people = null;
-            window.value = null;
-            $.get("/add/", args).done(function(data) {
-               console.log("message: " + data);
-               modal.style.display = "none";
-               map.closePopup();
-               window.location.reload(true);
-            });
-        }
-    </script>
+  save_button.onclick = function () {
+    var args = {
+      'number': number_of_people,
+      'action': activity_of_people,
+      'lat': window.value['lat'],
+      'lng': window.value['lng']
+    };
+    activity_of_people = null;
+    number_of_people = null;
+    window.value = null;
+    $.get("/add/", args).done(function(data) {
+      console.log("message: " + data);
+      modal.style.display = "none";
+      map.closePopup();
+      window.location.reload(true);
+    });
+  }
+</script>
 
+<!--  Center view at IP location  -->
+<script type="text/javascript">
+  //initial location longitude, latitude
+  var lng, lat;
+
+  // get location data
+  fetch('https://ipapi.co/json/')
+    .then(function(response) {
+      return response.json();
+    })
+    .then(function(data) {
+      lat = parseFloat(data['latitude']);
+      lng = parseFloat(data['longitude']);
+      console.log(data);
+      console.log(lat);
+      console.log(lng);
+      map.setView([lat, lng], 16);
+    });
+</script>
 
 </body>
 </html>

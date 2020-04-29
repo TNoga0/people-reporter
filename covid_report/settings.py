@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     'leaflet',
     'reporter',
     'djgeojson',
@@ -79,9 +80,9 @@ WSGI_APPLICATION = 'covid_report.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'postgres',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'NAME': 'postgresq',
+        'USER': 'user',
+        'PASSWORD': 'pass',
         'HOST': 'db',
         'PORT': 5432,
     }

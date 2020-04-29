@@ -1,5 +1,3 @@
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
 from geojson import Point
 from django.shortcuts import redirect
 
@@ -14,6 +12,4 @@ def submit_report(request):
         geom=Point((float(request.GET.get('lng')), float(request.GET.get('lat'))))
     )
     g.save()
-    # return HttpResponse('done')
-    # return HttpResponseRedirect("/")
     return redirect("/")
