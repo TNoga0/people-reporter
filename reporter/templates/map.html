@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-  <link rel="stylesheet" type="text/css" href="{%static "css/style.css"%}">
+  <link rel="stylesheet" type="text/css" href='{%static "css/style.css"%}'>
   <meta charset="UTF-8">
   <title>Anti COVID-19 people gatherings reporter</title>
 </head>
@@ -17,9 +17,11 @@
   var dataurl = '{% url "data" %}';
   var map;
 
-  //TODO find a way to remove reset view
+  //TODO some info in footer maybe
   window.addEventListener("map:init", function (event) {
     map = event.detail.map;
+    //Remove the Reset View button
+    $('.leaflet-control-zoom-out.leaflet-bar-part').remove();
 
     fetch(dataurl)
       .then(function(resp) {
@@ -34,23 +36,23 @@
     //Init view, Krakow Main Square, changed if user grants permission for IP location
     map.setView([50.062412, 19.937216], 16);
     map.on('click', function(e) {
-      var popLocation= e.latlng;
+      var popLocation = e.latlng;
       window.value = popLocation;
       popup = L.popup()
         .setLatLng(popLocation)
         .setContent('<p>Click on "Report" button to report activity in this place</p>')
         .openOn(map);
     });
-    map.viewreset.disable();
   });
-
 </script>
+
 <div id="map">
   {% leaflet_map "main" %}
 </div>
 
 <div id="reporting">
-  <button type="button" id="report-button">Report</button>
+  <button type="button" class="btn-primary" id="report-button">Report</button>
+  <button type="button" class="btn-primary" id="center-view">My location</button>
 </div>
 
 <div id="reportModal" class="modal" role="document">
@@ -77,80 +79,28 @@
   </div>
 </div>
 
-<!-- Modal popping up    -->
-<script type="text/javascript">
-  var button = document.getElementById("report-button");
-  var modal = document.getElementById("reportModal");
-  var span = document.getElementsByClassName("close")[0];
+<!-- load a bunch of crucial scripts -->
+<script src="{% static 'js/modal_script.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/add_report.js' %}" type="text/javascript"></script>
+<script src="{% static 'js/location_provider.js' %}" type="text/javascript"></script>
 
-  button.onclick = function () {
-    modal.style.display = "block";
-  };
+<!-- TODO decide if this script should be left out or kept -->
+<!--&lt;!&ndash;  Center view at IP location  &ndash;&gt;-->
+<!--<script type="text/javascript">-->
+<!--  //initial location longitude, latitude-->
+<!--  var lng, lat;-->
 
-  span.onclick = function () {
-    modal.style.display = "none";
-  }
-
-  window.onclick = function (event) {
-    if (event.target == modal) {
-      modal.style.display = "none";
-    }
-  }
-</script>
-
-<!-- Modal buttons behaviour   -->
-<script>
-  var number_of_people = null;
-  $('.ppl-number').click((e) => {
-    number_of_people = e.target.value;
-  });
-
-  var activity_of_people = null;
-  $('.ppl-activity').click((e) => {
-    activity_of_people = e.target.value;
-  });
-
-  var save_button = document.getElementById("btn-save");
-  var modal = document.getElementById("reportModal");
-
-  save_button.onclick = function () {
-    var args = {
-      'number': number_of_people,
-      'action': activity_of_people,
-      'lat': window.value['lat'],
-      'lng': window.value['lng']
-    };
-    activity_of_people = null;
-    number_of_people = null;
-    window.value = null;
-    $.get("/add/", args).done(function(data) {
-      console.log("message: " + data);
-      modal.style.display = "none";
-      map.closePopup();
-      window.location.reload(true);
-    });
-  }
-</script>
-
-<!--  Center view at IP location  -->
-<script type="text/javascript">
-  //initial location longitude, latitude
-  var lng, lat;
-
-  // get location data
-  fetch('https://ipapi.co/json/')
-    .then(function(response) {
-      return response.json();
-    })
-    .then(function(data) {
-      lat = parseFloat(data['latitude']);
-      lng = parseFloat(data['longitude']);
-      console.log(data);
-      console.log(lat);
-      console.log(lng);
-      map.setView([lat, lng], 16);
-    });
-</script>
+<!--  // get location data-->
+<!--  fetch('https://ipapi.co/json/')-->
+<!--    .then(function(response) {-->
+<!--      return response.json();-->
+<!--    })-->
+<!--    .then(function(data) {-->
+<!--      lat = parseFloat(data['latitude']);-->
+<!--      lng = parseFloat(data['longitude']);-->
+<!--      map.setView([lat, lng], 16);-->
+<!--    });-->
+<!--</script>-->
 
 </body>
 </html>

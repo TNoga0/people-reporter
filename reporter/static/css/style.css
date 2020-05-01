@@ -19,7 +19,7 @@ body, html, #map {
   position: absolute;
   bottom: 50px;
   z-index: 1;
-  width: 100%;
+  width: 97%;
 }
 
 #report-button {
@@ -29,9 +29,20 @@ body, html, #map {
   border-radius: 10px;
   width: 120px;
   height: 30px;
-  position: relative;
-  right: -90%;
   cursor: pointer;
+  float: right;
+}
+
+#center-view {
+  background-color: #0d02ff;
+  font-size: 18px;
+  color: white;
+  border-radius: 10px;
+  width: 130px;
+  height: 30px;
+  cursor: pointer;
+  float: right;
+  margin-right: 10px;
 }
 
 /* The Modal (background) */
