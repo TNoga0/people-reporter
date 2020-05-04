@@ -9,10 +9,14 @@ services:
       - POSTGRES_PASSWORD=pass
   web:
     build: .
-    command: python3 manage.py runserver 0.0.0.0:8000
+    command: >
+        sh -c "redis-server --daemonize yes --protected-mode no
+        && celery -A covid_report beat --detach
+        && python3 manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
       - "8000:8000"
+      - "6379:6379"
     depends_on:
       - db

@@ -4,3 +4,5 @@ django-leaflet
 django-geojson
 jsonfield
 geojson
+celery
+redis

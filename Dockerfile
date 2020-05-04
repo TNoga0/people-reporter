@@ -16,7 +16,8 @@ RUN mkdir /app \
     && npm install leaflet \
     && npm install jquery \
     && apt-get update \
-    && apt-get install -y binutils libproj-dev gdal-bin
+    && apt-get install -y binutils libproj-dev gdal-bin \
+    && apt-get install -y redis-server
 WORKDIR /app
 COPY requirements.txt /app/
 RUN pip3 install -r requirements.txt
